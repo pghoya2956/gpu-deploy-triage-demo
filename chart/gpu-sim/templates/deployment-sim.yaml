@@ -10,6 +10,11 @@ metadata:
     app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.sim.replicas }}
+  # Recreate: 업데이트 시 옛 파드 전부 종료 후 새로 생성. GPU 1개 환경에서 옛 healthy 파드가
+  # GPU를 쥔 채 남아 새 파드가 전부 Pending 되는 것을 막아, 고장 시 1 CrashLoop + 2 Pending을
+  # 결정론적으로 재현(mock 동형).
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: {{ .Release.Name }}

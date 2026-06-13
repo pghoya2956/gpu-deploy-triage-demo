@@ -1,0 +1,18 @@
+# gpu-sim 데모 차트 값
+# healthy v1 기본값. broken v2는 데모 시 sim.image.tag·sim.parallelism만 바꿔 커밋 → ArgoCD 롤백으로 되돌림.
+
+# 항상 Healthy한 API (mock-data의 healthy Deployment 대응)
+api:
+  enabled: true
+  image: nginx:alpine
+  replicas: 1
+
+# GPU 시뮬레이션 잡 (깨지는 워크로드)
+sim:
+  image:
+    repository: ghcr.io/pghoya2956/cpp-build-optimization-reference
+    tag: gpu-verify          # healthy: CUDA 12.2.2 ≤ 노드 드라이버 535.230.02 지원(12.2) → 정상
+    # broken v2: cuda-mismatch  # CUDA 12.6 빌드 → 535 드라이버 불일치 → CrashLoopBackOff
+  parallelism: 1             # healthy: 1 (GPU 1개와 일치)
+    # broken v2: 3            # 1 GPU뿐 → 1 CrashLoop + 2 Pending(Insufficient GPU)
+  gpuPerPod: 1

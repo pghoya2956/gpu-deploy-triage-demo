@@ -1,0 +1,6 @@
+apiVersion: v2
+name: gpu-sim
+description: Demo GPU simulation app — agentic deploy-triage closed-loop용. CUDA 드라이버 불일치(CrashLoop) + GPU 스케줄링 실패(Pending) 재현.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

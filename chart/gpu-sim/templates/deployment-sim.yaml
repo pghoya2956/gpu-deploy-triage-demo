@@ -10,6 +10,14 @@ metadata:
     app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.sim.replicas }}
+  # GPU 1개 환경: 업데이트 시 옛 파드를 먼저 비워 GPU를 풀어야 새 파드가 스케줄됨.
+  # maxUnavailable=100%, maxSurge=0 → 옛 파드 전부 종료 후 새로 생성(Recreate처럼 동작하되
+  # type은 RollingUpdate라 ServerSideApply 필드 충돌 없음). 단일 GPU 교착 방지.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 100%
+      maxSurge: 0
   selector:
     matchLabels:
       app: {{ .Release.Name }}

@@ -1,0 +1,34 @@
+# GPU 시뮬레이션 워크로드 — Deployment.
+# healthy(gpu-verify): cbor(CUDA verify)가 정상 실행 후 컨테이너 유지 → Running/Healthy.
+# broken(cuda-mismatch): nvidia 런타임 prestart hook이 CUDA>드라이버라 컨테이너 생성을 거부 → CrashLoopBackOff(events).
+# Deployment라 이미지 변경=인플레이스 롤링, 롤백 깨끗(불변 Job/Replace 문제 없음).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-sim
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.sim.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      role: sim
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        role: sim
+    spec:
+      runtimeClassName: nvidia
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      containers:
+        - name: sim
+          image: "{{ .Values.sim.image.repository }}:{{ .Values.sim.image.tag }}"
+          imagePullPolicy: Always
+          # cbor는 1회 실행 후 종료 → Deployment에서 Running 유지를 위해 종료 후 hold.
+          command: ["sh", "-c", "./cbor || true; echo '[gpu-sim] CUDA check complete; holding'; sleep infinity"]
+          resources:
+            limits:
+              nvidia.com/gpu: {{ .Values.sim.gpuPerPod }}

@@ -11,8 +11,8 @@ api:
 sim:
   image:
     repository: ghcr.io/pghoya2956/cpp-build-optimization-reference
-    tag: cuda-mismatch          # healthy: CUDA 12.2.2 ≤ 노드 드라이버 535.230.02 지원(12.2) → 정상
+    tag: gpu-verify          # healthy: CUDA 12.2.2 ≤ 노드 드라이버 535.230.02 지원(12.2) → 정상
     # broken v2: cuda-mismatch  # CUDA 12.6 빌드 → 535 드라이버 불일치 → CrashLoopBackOff
-  replicas: 3                # healthy: 1 (GPU 1개와 일치)
+  replicas: 1                # healthy: 1 (GPU 1개와 일치)
     # broken v2: 3            # 1 GPU뿐 → 1 CrashLoop + 2 Pending(Insufficient GPU)
   gpuPerPod: 1
